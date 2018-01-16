@@ -1,0 +1,2 @@
+# Mediumrare
+blog content improver
