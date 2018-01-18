@@ -1,18 +1,19 @@
 from gensim import corpora, models
 import gensim
 # import multiprocessing
-# from nltk.tokenize import word_tokenize
-# from nltk.corpus import stopwords
-# from nltk.stem import WordNetLemmatizer
+# from nltk.tokenenize import word_tokenenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 import string
 from Mediumrare import db_tools
 from itertools import chain
 import pudb
-# cores = multiprocessing.cpu_count()
-# assert gensim.models.doc2vec.FAST_VERSION > -1 # "This will be painfully slow otherwise"
+cores = multiprocessing.cpu_count()
+assert gensim.models.doc2vec.FAST_VERSION > -1 # "This will be painfully slow otherwise"
 
 conn = db_tools.get_conn()
 query = 'SELECT textcontent from mediumblog'
+ltzr = WordNetLemmatizer
 # %%
 class RawDocToCleanDoc(object):
     def __init__(self, conn, query):
@@ -23,6 +24,8 @@ class RawDocToCleanDoc(object):
 
     def clean_document(self,doc):
         doc = gensim.utils.simple_preprocess(doc)
+        doc = [tokenen for tokenen in doc if tokenen not in stopwords]
+        doc = [ltzr.lemmatize(ltzr.lemmatize(token, 'n'),'v') for token in doc]
         # doc = gensim.utils.lemmatize(doc)
         return doc
 
@@ -67,6 +70,12 @@ class DocEmbedder(object):
     def __init__(self):
         self.docs = get_clean_docs()
         self.model = None
+        self.default_args = {
+            'workers': cores,
+            'size': 100,
+            'window': 8
+            'min_count': 3
+            }
 
     def train_model(self, **modelargs):
         if self.model is None:

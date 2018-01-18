@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import time
 # Scrapy settings for tutorial project
 #
 # For simplicity, this file contains only settings considered important or
@@ -14,7 +14,7 @@ BOT_NAME = 'tutorial'
 SPIDER_MODULES = ['tutorial.spiders']
 NEWSPIDER_MODULE = 'tutorial.spiders'
 
-LOG_FILE = 'blog_scrape_report.log'
+LOG_FILE = time.strftime('%Y%m%d') + 'blog_scrape_report.log'
 LOG_ENABLED = True
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36'

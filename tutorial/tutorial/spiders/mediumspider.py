@@ -3,11 +3,20 @@ from tutorial.items import BlogPost
 from scrapy.selector import Selector
 import requests
 from itertools import product
+import pudb
 
 def set_resolution(img_url, res=800):
+    # print('img_url', img_url)
+    # pudb.set_trace()
     parts = img_url.split('/')
-    res_idx = parts.index('max')+1
-    parts[res_idx] = str(res)
+    try:
+        res_idx = parts.index('max')+1
+        parts[res_idx] = str(res)
+    except ValueError:
+        res_idx = parts.index('fit')+2
+        parts[res_idx] = str(res)
+        parts[res_idx+1] = str(res)
+
     return '/'.join(parts)
 
 def save_image(img_url, img_path):
@@ -28,18 +37,22 @@ class MediumSpider(scrapy.Spider):
     name = "mediumspider"
 
     def start_requests(self):
-        # channels = ['backchannel', 'matter', 'the-mission']
-        # years = ['2013', '2014', '2015', '2016', '2017']
-        channels = ['matter']
-        years = ['2017']
-        months = ['%02d'%x for x in range(3,13)]
         # urls = ['https://writingcooperative.com/stop-romanticizing-your-writing-career-8d1de425a54b']
+        # copy/pasted from https://toppub.xyz/
+        channels = ['backchannel', 'matter', 'the-mission', 'thewashingtonpost', 'swlh',
+                    'personal-growth', 'startup-grind', 'due', 'startupsco', 'google-design',
+                    'the-nib', 'human-parts', 'vantage', 'dailyjs', 'mother-jones',
+                    'thought-pills', 'slackjaw', 'facebook-design', 'synapse', 'cuepoint',
+                    'la-times', 'adventures-in-consumer-technology', 'hi-my-name-is-jon',
+                    'iotforall', 'the-happy-startup-school']
+        years = ['2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017']
+        # channels = ['matter'] # for debugging
+        # years = ['2017'] # for debugging
+        months = ['%02d'%x for x in range(1,13)]
 
         for url in generate_archive_url(channels, years, months):
             yield scrapy.Request(url=url,
-                                 meta = {
-                                    'dont_redirect': True,
-                                    'handle_httpstatus_list': [302]},
+                                 meta = {},
                                  callback=self.parse)
 
     def parse(self, response):
@@ -65,16 +78,21 @@ class MediumSpider(scrapy.Spider):
         blogdata['claps'] = int(claps.replace('.','').replace('K','000'))
 
         img_url = response.xpath('//div/img/@src').extract_first()
-        img_url = set_resolution(img_url)
-        blogdata['img_url'] = img_url
-
-        img_path = '/home/jdechery/Pictures/medium/' + blogdata['title'] + '.jpg'
-        img_save_success = save_image(img_url, img_path)
-        if img_save_success:
-            self.log('img saved successfully')
+        # print(img_url)
+        if not img_url:
+            blogdata['img_url'] = ''
+            blogdata['img_path'] = ''
         else:
-            self.log('img not saved')
-        blogdata['img_path'] = img_path
+            img_url = set_resolution(img_url)
+            blogdata['img_url'] = img_url
+            img_path = '/home/jdechery/Pictures/medium/' + blogdata['title'] + '.jpg'
+            img_save_success = save_image(img_url, img_path)
+            blogdata['img_path'] = img_path
+
+        # if img_save_success:
+        #     self.log('img saved successfully')
+        # else:
+        #     self.log('img not saved')
 
         self.log(f'collected blog post {response.url}')
         return blogdata
