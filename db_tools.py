@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 # import pandas as pd
 # import psycopg2
 
+
 def get_conn():
     username = 'postgres'
     with open('/home/jdechery/.postgrespw.txt','r') as f:
