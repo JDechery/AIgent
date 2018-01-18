@@ -2,18 +2,20 @@ from gensim import corpora, models
 import gensim
 # import multiprocessing
 # from nltk.tokenenize import word_tokenenize
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
+# from nltk.corpus import stopwords
+# from nltk.stem import WordNetLemmatizer
 import string
 from Mediumrare import db_tools
 from itertools import chain
 import pudb
+import multiprocessing
+
 cores = multiprocessing.cpu_count()
 assert gensim.models.doc2vec.FAST_VERSION > -1 # "This will be painfully slow otherwise"
 
 conn = db_tools.get_conn()
-query = 'SELECT textcontent from mediumblog'
-ltzr = WordNetLemmatizer
+query = 'SELECT cleantext from mediumclean'
+# ltzr = WordNetLemmatizer()
 # %%
 class RawDocToCleanDoc(object):
     def __init__(self, conn, query):
@@ -22,15 +24,13 @@ class RawDocToCleanDoc(object):
         self.rows = self.conn.execute(self.query)
         self._nrows = self.count_rows()
 
-    def clean_document(self,doc):
-        doc = gensim.utils.simple_preprocess(doc)
-        doc = [tokenen for tokenen in doc if tokenen not in stopwords]
-        doc = [ltzr.lemmatize(ltzr.lemmatize(token, 'n'),'v') for token in doc]
-        # doc = gensim.utils.lemmatize(doc)
-        return doc
-
+    # def clean_document(self,doc):
+    #     doc = gensim.utils.simple_preprocess(doc)
+    #     doc = [tokenen for tokenen in doc if tokenen not in stopwords]
+    #     doc = [ltzr.lemmatize(ltzr.lemmatize(token, 'n'),'v') for token in doc]
+    #     return doc
     def count_rows(self):
-        return self.conn.execute("SELECT COUNT(*) FROM mediumblog").fetchone()[0]
+        return self.conn.execute("SELECT COUNT(*) FROM mediumclean").fetchone()[0]
 
     def __len__(self):
         return self._nrows
@@ -45,9 +45,9 @@ class RawDocToCleanDoc(object):
         if doc is None:
             raise StopIteration
         else:
-            return self.clean_document(doc[0])
+            return doc[0].split(' ')
 # %%
-def get_clean_docs():
+def get_clean_docs(conn=conn, query=query):
     return RawDocToCleanDoc(conn, query)
 
 class TaggedDoc(object):
@@ -73,24 +73,34 @@ class DocEmbedder(object):
         self.default_args = {
             'workers': cores,
             'size': 100,
-            'window': 8
-            'min_count': 3
+            'window': 8,
+            'min_count': 3,
+            'alpha': .025,
+            'min_alpha': .005,
+            'iter': 10
             }
+        self.default_fname = '/home/jdechery/doc2vec.model'
 
     def train_model(self, **modelargs):
         if self.model is None:
+            if not modelargs:
+                modelargs = self.default_args
             self.model = models.Doc2Vec(**modelargs)
         self.model.build_vocab(TaggedDoc())
         # self.model.finalize_vocab()
-        for epoch in range(10):
-            self.model.train(TaggedDoc(), total_examples=len(self.docs), epochs=1)
-            self.model.alpha -= 0.002 # decrease the learning rate
-            self.model.min_alpha = self.model.alpha # fix the learning rate, no decay
-            self.model.train(TaggedDoc(), total_examples=len(self.docs), epochs=1)
+        # for epoch in range(10):
+        print('training...')
+        self.model.train(TaggedDoc(), total_examples=len(self.docs), epochs=self.model.iter)
+            # self.model.alpha -= 0.002 # decrease the learning rate
+            # self.model.min_alpha = self.model.alpha # fix the learning rate, no decay
+            # self.model.train(TaggedDoc(), total_examples=len(self.docs), epochs=1)
 
-    def save_model(self, fname='/tmp/model.model'):
-        self.model.save(fname)
+    def save_model(self):
+        with open(self.default_fname, 'wb') as f:
+            self.model.save(f)
 
+    def load_model(self):
+        self.model = models.Doc2Vec.load(self.default_fname)
 # %%
 class DatabaseToMM():
     def __init__(self, conn, query):
@@ -125,10 +135,14 @@ class DatabaseToMM():
     def load_serialized_docs(self, fname):
         corpus = corpora.MmCorpus(fname=fname)
 
+# %%
 if __name__=='__main__':
     conn = db_tools.get_conn()
-    query = 'SELECT textcontent from mediumblog'
-    default_fname = '/tmp/corpus.mm'
-    serializer = DatabaseToMM(conn, query)
-    serializer.make_dictionary()
-    serializer.save_serialized_docs(default_fname)
+    query = 'SELECT cleantext from mediumclean'
+
+    embedder = DocEmbedder()
+    embedder.make_dictionary
+    # default_fname = '/tmp/corpus.mm'
+    # serializer = DatabaseToMM(conn, query)
+    # serializer.make_dictionary()
+    # serializer.save_serialized_docs(default_fname)
