@@ -7,7 +7,7 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
+    <link rel="icon" href="../static/favicon.ico">
 
     <title>Starter Template for Bootstrap</title>
 
@@ -15,7 +15,7 @@
     <link href="../static/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <link href="../static/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="starter-template.css" rel="stylesheet">
@@ -58,18 +58,18 @@
 <div class="container">
     <div class="starter-template">
         <h2>Output Page</h2>
-        <p>Enter some user input</p>
+        <p>Enter a new blog post</p>
     </div>
 
     <div class = "container">
 
       <form  action="/output" method="GET">
         <div class="form-group">
-          <label for="birth_month">Birth Month:</label>
-          <input type="text" id="birth_month" name='birth_month' placeholder="e.g. ">
+          <label for="blogtext">Your text:</label>
+          <input type="text" id="blogtext" name='blogtext' placeholder="e.g. ">
         </div>
         <div>
-          <button type="submit" class="btn btn-default btn-lg">Find these Cesareans!</button>
+          <button type="submit" class="btn btn-default btn-lg">Find your channel</button>
         </div>
       </form>
     </div>
@@ -81,13 +81,13 @@
     <div class="container">
       <div class="starter-template">
         <h3>Results:</h3>
-        <p class="lead">Below is the result of your query.<br> You just took user input and looked up the information. Now we need to expand the functionality!</p>
+        <p class="lead">Your best channel matches</p>
       </div>
 
       <table class="table table-hover">
-      <tr><th>index</th><th>Attendant</th><th>Birth Month</th></tr>
-      {% for birth in births %}
-      <tr><td>{{ birth['index'] }}</td><td>{{ birth['attendant']}}</td><td> {{ birth['birth_month'] }}</td></tr>
+      <tr><th>channel</th><th>probability</th></tr>
+      {% for rec in channel_rec %}
+      <tr><td>{{ rec[0] }}</td><td>{{ rec[1] }}</td></tr>
       {% endfor %}
       </table>
 
@@ -95,10 +95,10 @@
      </div><!-- /.container -->
 
     <div class="container">
-      <div class="starter-template">
+      <!-- <div class="starter-template">
         <h3>Another Result:</h3>
         <p class="lead">Now we've taken the input and called a function from your package.<br>The result is {{the_result}}</p>
-      </div>
+      </div> -->
 
 
       <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>

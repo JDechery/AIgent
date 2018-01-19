@@ -99,8 +99,10 @@ class DocEmbedder(object):
         with open(self.default_fname, 'wb') as f:
             self.model.save(f)
 
-    def load_model(self):
-        self.model = models.Doc2Vec.load(self.default_fname)
+    def load_model(self, fname=None):
+        if fname is None:
+            fname = self.default_fname
+        self.model = models.Doc2Vec.load(fname)
 # %%
 class DatabaseToMM():
     def __init__(self, conn, query):
