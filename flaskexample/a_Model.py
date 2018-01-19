@@ -2,7 +2,6 @@ import pickle
 from gensim import models
 from Mediumrare import gensim_nlp, db_tools
 import numpy as np
-import pudb
 
 def ModelIt(blogtext):
     # pudb.set_trace()
@@ -19,5 +18,6 @@ def ModelIt(blogtext):
 
     class_probs = clf.predict_proba(blog_vec)[0].tolist()
     class_names = labelencoder.classes_
+    print(class_probs, class_names)
     doc_classes = sorted(zip(class_names, class_probs), key=lambda x: x[1], reverse=True)
     return doc_classes

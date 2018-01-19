@@ -14,7 +14,7 @@ cores = multiprocessing.cpu_count()
 assert gensim.models.doc2vec.FAST_VERSION > -1 # "This will be painfully slow otherwise"
 
 conn = db_tools.get_conn()
-query = 'SELECT cleantext from mediumclean'
+query = 'SELECT cleantext from mediumclean ORDER BY id'
 # ltzr = WordNetLemmatizer()
 # %%
 class RawDocToCleanDoc(object):
@@ -52,7 +52,7 @@ def get_clean_docs(conn=conn, query=query):
 
 class TaggedDoc(object):
     def __init__(self):
-        self.docs = get_clean_docs()
+        self.docs = iter(get_clean_docs())
         self.ii = 0
     def __iter__(self):
         self.ii = 0
@@ -62,7 +62,7 @@ class TaggedDoc(object):
         if nextdoc is None:
             raise StopIteration
         else:
-            TDoc = models.doc2vec.TaggedDocument(words=next(self.docs), tags=['SENT_%s' % self.ii])
+            TDoc = models.doc2vec.TaggedDocument(words=nextdoc, tags=[self.ii])
             self.ii = self.ii+1
             return TDoc
 # %%
@@ -77,7 +77,8 @@ class DocEmbedder(object):
             'min_count': 3,
             'alpha': .025,
             'min_alpha': .005,
-            'iter': 10
+            'iter': 20,
+            'sample': 0.
             }
         self.default_fname = '/home/jdechery/doc2vec.model'
 
@@ -143,7 +144,8 @@ if __name__=='__main__':
     query = 'SELECT cleantext from mediumclean'
 
     embedder = DocEmbedder()
-    embedder.make_dictionary
+    embedder.train_model()
+    embedder.save_model()
     # default_fname = '/tmp/corpus.mm'
     # serializer = DatabaseToMM(conn, query)
     # serializer.make_dictionary()
