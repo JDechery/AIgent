@@ -5,7 +5,7 @@ import gensim
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 
-
+# %%
 def get_conn():
     username = 'postgres'
     with open('/home/jdechery/.postgrespw.txt','r') as f:
@@ -70,3 +70,23 @@ def create_raw_table(conn=get_conn()):
     conn = engine.connect()
     conn.execute(creation_query)
     conn.close()
+
+# %% one and done
+def create_full_table(conn=get_conn()):
+    creation_query = """CREATE TABLE mediumblogfull (
+                        id serial PRIMARY KEY,
+                        blog_url TEXT,
+                        textcontent TEXT,
+                        img_url TEXT,
+                        img_path TEXT,
+                        title TEXT,
+                        author TEXT,
+                        pub_date TEXT,
+                        tags TEXT,
+                        channel TEXT,
+                        claps INTEGER)"""
+
+    # conn = engine.connect()
+    # conn = get_conn()
+    # conn.execute(creation_query)
+    # conn.close()

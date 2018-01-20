@@ -14,6 +14,10 @@ class BlogPost(scrapy.Item):
     img_url = scrapy.Field()
     blog_url = scrapy.Field()
     img_path = scrapy.Field()
+    author = scrapy.Field()
+    pub_date = scrapy.Field()
+    tags = scrapy.Field()
+    channel = scrapy.Field()
 
 class TutorialItem(scrapy.Item):
     # define the fields for your item here like:
