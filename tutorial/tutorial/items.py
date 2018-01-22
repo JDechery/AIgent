@@ -10,6 +10,7 @@ import scrapy
 class BlogPost(scrapy.Item):
     title = scrapy.Field()
     textcontent = scrapy.Field()
+    textstructure = scrapy.Field()
     claps = scrapy.Field()
     img_url = scrapy.Field()
     blog_url = scrapy.Field()

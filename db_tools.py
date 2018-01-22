@@ -77,6 +77,7 @@ def create_full_table(conn=get_conn()):
                         id serial PRIMARY KEY,
                         blog_url TEXT,
                         textcontent TEXT,
+                        textstructure TEXT,
                         img_url TEXT,
                         img_path TEXT,
                         title TEXT,
@@ -85,8 +86,6 @@ def create_full_table(conn=get_conn()):
                         tags TEXT,
                         channel TEXT,
                         claps INTEGER)"""
-
-    # conn = engine.connect()
-    # conn = get_conn()
-    # conn.execute(creation_query)
-    # conn.close()
+    conn.execute(creation_query)
+    conn.close()
+# create_full_table()
