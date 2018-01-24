@@ -10,11 +10,10 @@ from itertools import chain
 import pudb
 import multiprocessing
 
-cores = multiprocessing.cpu_count()
-assert gensim.models.doc2vec.FAST_VERSION > -1 # "This will be painfully slow otherwise"
+# assert gensim.models.doc2vec.FAST_VERSION > -1 # "This will be painfully slow otherwise"
 
 conn = db_tools.get_conn()
-query = 'SELECT cleantext from mediumclean ORDER BY id'
+query = 'SELECT cleantext from mediumcleanfull ORDER BY id'
 # ltzr = WordNetLemmatizer()
 # %%
 class RawDocToCleanDoc(object):
@@ -30,7 +29,7 @@ class RawDocToCleanDoc(object):
     #     doc = [ltzr.lemmatize(ltzr.lemmatize(token, 'n'),'v') for token in doc]
     #     return doc
     def count_rows(self):
-        return self.conn.execute("SELECT COUNT(*) FROM mediumclean").fetchone()[0]
+        return self.conn.execute("SELECT COUNT(*) FROM mediumcleanfull").fetchone()[0]
 
     def __len__(self):
         return self._nrows
@@ -71,7 +70,7 @@ class DocEmbedder(object):
         self.docs = get_clean_docs()
         self.model = None
         self.default_args = {
-            'workers': cores,
+            'workers': 4,
             'size': 100,
             'window': 8,
             'min_count': 3,
@@ -89,11 +88,11 @@ class DocEmbedder(object):
             self.model = models.Doc2Vec(**modelargs)
         self.model.build_vocab(TaggedDoc())
         # self.model.finalize_vocab()
-        # for epoch in range(10):
-        print('training...')
-        self.model.train(TaggedDoc(), total_examples=len(self.docs), epochs=self.model.iter)
-            # self.model.alpha -= 0.002 # decrease the learning rate
-            # self.model.min_alpha = self.model.alpha # fix the learning rate, no decay
+        for epoch in range(10):
+            print('training epoch %i'%epoch)
+            self.model.train(TaggedDoc(), total_examples=len(self.docs), epochs=1)
+            self.model.alpha -= 0.002 # decrease the learning rate
+            self.model.min_alpha = self.model.alpha # fix the learning rate, no decay
             # self.model.train(TaggedDoc(), total_examples=len(self.docs), epochs=1)
 
     def save_model(self):
@@ -105,48 +104,54 @@ class DocEmbedder(object):
             fname = self.default_fname
         self.model = models.Doc2Vec.load(fname)
 # %%
-class DatabaseToMM():
-    def __init__(self, conn, query):
-        self.conn = conn
-        self.query = query
-        self.dictionary = corpora.Dictionary()
-
-    def get_raw_docs(self):
-        return RawDocToCleanDoc(self.conn, self.query)
-
-    def load_dictionary(self, fname):
-        self.dictionary.load(fname)
-
-    def make_dictionary(self, tosave=False, fname='/tmp/dict'):
-        docs = self.get_raw_docs()
-        for doc in docs:
-            # doc = gensim.utils.simple_preprocess(doc)
-            self.dictionary.add_documents([doc])
-        self.dictionary.compactify()
-        if tosave:
-            self.dictionary.save()
-
-    def get_clean_bow(self):
-        docs = self.get_raw_docs()
-        for doc in docs:
-            # doc = gensim.utils.simple_preprocess(doc)
-            yield self.dictionary.doc2bow(doc)
-
-    def save_serialized_docs(self, fname):
-        corpora.MmCorpus.serialize(fname, self.get_clean_bow())
-
-    def load_serialized_docs(self, fname):
-        corpus = corpora.MmCorpus(fname=fname)
 
 # %%
-if __name__=='__main__':
+def main(fname='/home/jdechery/doc2vec.model'):
+    cores = multiprocessing.cpu_count()
     conn = db_tools.get_conn()
-    query = 'SELECT cleantext from mediumclean'
+    query = 'SELECT cleantext from mediumcleanfull ORDER BY id'
 
     embedder = DocEmbedder()
     embedder.train_model()
     embedder.save_model()
+
+if __name__=='__main__':
+    main()
+
     # default_fname = '/tmp/corpus.mm'
     # serializer = DatabaseToMM(conn, query)
     # serializer.make_dictionary()
     # serializer.save_serialized_docs(default_fname)
+
+    # class DatabaseToMM():
+    #     def __init__(self, conn, query):
+    #         self.conn = conn
+    #         self.query = query
+    #         self.dictionary = corpora.Dictionary()
+    #
+    #     def get_raw_docs(self):
+    #         return RawDocToCleanDoc(self.conn, self.query)
+    #
+    #     def load_dictionary(self, fname):
+    #         self.dictionary.load(fname)
+    #
+    #     def make_dictionary(self, tosave=False, fname='/tmp/dict'):
+    #         docs = self.get_raw_docs()
+    #         for doc in docs:
+    #             # doc = gensim.utils.simple_preprocess(doc)
+    #             self.dictionary.add_documents([doc])
+    #         self.dictionary.compactify()
+    #         if tosave:
+    #             self.dictionary.save()
+    #
+    #     def get_clean_bow(self):
+    #         docs = self.get_raw_docs()
+    #         for doc in docs:
+    #             # doc = gensim.utils.simple_preprocess(doc)
+    #             yield self.dictionary.doc2bow(doc)
+    #
+    #     def save_serialized_docs(self, fname):
+    #         corpora.MmCorpus.serialize(fname, self.get_clean_bow())
+    #
+    #     def load_serialized_docs(self, fname):
+    #         corpus = corpora.MmCorpus(fname=fname)
