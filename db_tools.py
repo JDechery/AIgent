@@ -91,6 +91,7 @@ def create_clean_full(conn=get_conn()):
     # return current_row, new_row
 # %%
 def clean_document(rawtext):
+    print(rawtext)
     ltzr = WordNetLemmatizer()
     stop_words = stopwords.words('english')
     cleantext = gensim.utils.simple_preprocess(rawtext)

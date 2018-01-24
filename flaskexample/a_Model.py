@@ -24,6 +24,5 @@ def ModelIt(blogtext, topN=8):
                          channel_metadata.mean_channel_claps)
     top_channel_data = [[data_fun(channeldf, chan) for data_fun in channel_data_funs] for chan in top_channels]
     # top_tags = [channel_metadata]
-
     # doc_classes = sorted(zip(class_names, class_probs), key=lambda x: x[1], reverse=True)
     return top_channel_data

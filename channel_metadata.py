@@ -22,10 +22,11 @@ def most_recent_pubs(channeldf, channel, npub=3):
 
 def mean_channel_claps(channeldf, channel):
     channel_idx = channeldf['channel'] == channel
-    return channeldf.loc[channel_idx, 'claps'].mean()
+    avg_claps = channeldf.loc[channel_idx, 'claps'].mean()
+    return round(avg_claps*10)/10
 
 def most_common_tags(channeldf, channel, ntags=3):
     channel_idx = channeldf['channel'] == channel
     tags = list(chain(*channeldf.loc[channel_idx, 'tags'].map(lambda x: x.split(',')).values))
     common_tags = pd.Series(tags).value_counts()[:ntags]
-    return common_tags.index
+    return common_tags.index.tolist()

@@ -7,9 +7,9 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../static/favicon.ico">
+    <link rel="icon" href="../static/insightDS.ico" type="image/x-icon" />
 
-    <title>Starter Template for Bootstrap</title>
+    <title>AIgent</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../static/css/bootstrap.min.css" rel="stylesheet">
@@ -18,7 +18,7 @@
     <link href="../static/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="starter-template.css" rel="stylesheet">
+    <link href="../static/grid.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -57,11 +57,11 @@
 
 <div class="container">
     <div class="starter-template">
-        <h2>Output Page</h2>
+        <!-- <h2>Output Page</h2> -->
         <p>Enter a new blog post</p>
     </div>
 
-    <div class = "container">
+    <div class="container">
 
       <form  action="/output" method="GET">
         <div class="form-group">
@@ -84,15 +84,28 @@
         <p class="lead">Your best channel matches</p>
       </div>
 
-      <table class="table table-striped">
+      <!-- <table class="table table-striped">
       <tr><th>channel</th><th>probability</th></tr>
       {% for rec in channel_rec %}
       <tr><td>{{ rec[0] }}</td><td>{{ rec[1] }}</td></tr>
       {% endfor %}
-      </table>
+      </table> -->
+      <div class="row">
+        <div class="col-md-4"><h2>publisher</h2></div>
+        <div class="col-md-4"><h2>recent posts</h2></div>
+        <div class="col-md-2"><h2>common tags</h2></div>
+        <div class="col-md-2"><h2>average claps</h2></div>
+      </div>
+      {% for pub in channel_rec %}
+      <div class="row">
+        <div class="col-md-3">{{ pub[0]['channel'][0] }}</div>
+        <div class="col-md-4">{{ pub[0]['url'] }}</div>
+        <div class="col-md-2">{{ pub[1] }}</div>
+        <div class="col-md-2">{{ pub[2] }}</div>
+      </div>
+      {% endfor %}
 
-
-     </div><!-- /.container -->
+   </div><!-- /.container -->
 
     <div class="container">
       <!-- <div class="starter-template">
