@@ -1,7 +1,7 @@
 from flask import render_template
-from flask import request
+from flask import request, redirect
 from flaskexample import app
-from Mediumrare import db_tools
+from Mediumrare import db_tools, gensim_nlp, predictor_model
 # from sqlalchemy import create_engine
 # from sqlalchemy_utils import database_exists, create_database
 from flaskexample.a_Model import ModelIt
@@ -21,13 +21,12 @@ import psycopg2
 # conn = None
 # conn = psycopg2.connect(database = dbname, user = user, host=host, password=password)
 conn = db_tools.get_conn()
+embed_fname = '/home/jdechery/doc2vec.model'
+embedder = gensim_nlp.DocEmbedder()
+embedder.load_model(fname=embed_fname)
 
-@app.route('/')
-@app.route('/index')
-def index():
-    return render_template("index.html",
-       title = 'Home', user = { 'nickname': 'Insight Demo' },
-       )
+clf_fname = '/home/jdechery/forest_classifier.pkl'
+clf,_,_ = predictor_model.load_classifier()
 
 # @app.route('/db')
 # def birth_page():
@@ -51,6 +50,19 @@ def index():
 #     for i in range(0,query_results.shape[0]):
 #         births.append(dict(index=query_results.iloc[i]['index'], attendant=query_results.iloc[i]['attendant'], birth_month=query_results.iloc[i]['birth_month']))
 #     return render_template('cesareans.html',births=births)
+# @app.route('/')
+@app.route('/')
+def home():
+    return redirect('/input', code=301)
+
+@app.route('/about')
+def index():
+    return render_template("about.html",
+    title = 'About Me', user = { 'nickname': 'Joe' })
+
+@app.route('/slides')
+def slides():
+    return render_template("slides.html", title="slides")
 
 @app.route('/input')
 def url_input():
@@ -59,6 +71,6 @@ def url_input():
 @app.route('/output')
 def cesareans_output():
   blogtext = request.args.get('blogtext')
-  channel_rec = ModelIt(blogtext)
+  channel_rec = ModelIt(blogtext, embedder.model, clf)
   # print(channel_rec)
   return render_template("output.html", channel_rec=channel_rec)

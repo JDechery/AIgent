@@ -15,10 +15,13 @@ channeldf['tags'] = channeldf['tags'].map(remove_bad_chars)
 
 # %%
 def most_recent_pubs(channeldf, channel, npub=3):
-    channel_idx = channeldf['channel'] == channel
-    meaningful_cols = ['id','claps','tags','author','url', 'title', 'pub_date','channel']
-    most_recent = channeldf.loc[channel_idx, 'pub_date'].sort_values(ascending=False)[:npub].index
-    return channeldf.loc[most_recent, meaningful_cols]
+    meaningful_cols = ['channel', 'title', 'url', 'author', 'pub_date', 'chan_title']
+    nodup_df = channeldf.drop_duplicates(subset='title')
+    nodup_df['chan_title'] = nodup_df['channel'].map(lambda x: x.title().replace('-',' '))
+    channel_idx = nodup_df['channel'] == channel
+    most_recent_idx = nodup_df.loc[channel_idx, 'pub_date'].sort_values(ascending=False)[:npub].index
+    recent_pubs = nodup_df.loc[most_recent_idx, meaningful_cols]
+    return list(recent_pubs.itertuples(index=False, name=None))
 
 def mean_channel_claps(channeldf, channel):
     channel_idx = channeldf['channel'] == channel

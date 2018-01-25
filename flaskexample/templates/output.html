@@ -29,11 +29,40 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <script type="text/javascript">// <![CDATA[
+        function preloader(){
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("content").style.display = "block";
+        }//preloader
+        window.onload = preloader;
+// ]]></script>
   </head>
 
   <body>
+    <ul>
+      <li><img src="../static/aigent.png" width="100%" height="15%"></li>
+      <li><a href="/input">Home</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/slides">Slides</a></li>
+    </ul>
+    <div style="margin-left:25%;padding:1px 16px;height:1000px;">
 
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <!-- <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="#">
+        <img src="../static/insightDS.ico" width="120" height="30" class="d-inline-block align-top" ></a>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link" href="#">Features</a>
+          <a class="nav-item nav-link" href="#">Pricing</a>
+          <a class="nav-item nav-link disabled" href="#">Disabled</a>
+        </div>
+      </div>
+    </nav> -->
+    <!-- <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -42,7 +71,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Project name</a>
+          <a class="navbar-brand" href="#">AIgent</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
@@ -50,20 +79,20 @@
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
-        </div><!--/.nav-collapse -->
+        </div>
       </div>
-    </nav>
+    </nav> -->
 <br><br>
 
 <div class="container">
-    <div class="starter-template">
+    <div class="grid">
         <!-- <h2>Output Page</h2> -->
-        <p>Enter a new blog post</p>
+        <a href="/input"><h3>Enter a new blog post</h3></a>
     </div>
 
     <div class="container">
-
-      <form  action="/output" method="GET">
+      <!-- Input a new post</a> -->
+      <!-- <form  action="/output" method="GET">
         <div class="form-group">
           <label for="blogtext">Your text:</label>
           <input type="text" id="blogtext" name='blogtext' placeholder="e.g. ">
@@ -71,7 +100,7 @@
         <div>
           <button type="submit" class="btn btn-default btn-lg">Find your channel</button>
         </div>
-      </form>
+      </form> -->
     </div>
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="../static/js/bootstrap.min.js"></script>
@@ -79,10 +108,13 @@
   </div> <!-- /.container-->
 
     <div class="container">
-      <div class="starter-template">
-        <h3>Results:</h3>
-        <p class="lead">Your best channel matches</p>
+      <div class="grid">
+        <div id="loading"></div>
+        <!-- <h3>Results:</h3> -->
+        <br><br>
+        <p class="lead">Your recommended publishers</p>
       </div>
+      <div id="content">
 
       <!-- <table class="table table-striped">
       <tr><th>channel</th><th>probability</th></tr>
@@ -91,20 +123,45 @@
       {% endfor %}
       </table> -->
       <div class="row">
-        <div class="col-md-4"><h2>publisher</h2></div>
-        <div class="col-md-4"><h2>recent posts</h2></div>
-        <div class="col-md-2"><h2>common tags</h2></div>
-        <div class="col-md-2"><h2>average claps</h2></div>
+        <div class="col-md-1"><p class="text-center" style="font-size:22px">Rank</p></div>
+        <div class="col-md-2"><p class="text-center" style="font-size:22px">Publisher</p></div>
+        <div class="col-md-4"><p class="text-center" style="font-size:22px">Recent Posts</p></div>
+        <div class="col-md-2"><p class="text-center" style="font-size:22px">Common Tags</p></div>
+        <div class="col-md-2"><p class="text-center" style="font-size:22px">Average Claps</p></div>
       </div>
-      {% for pub in channel_rec %}
+      {% for chan in channel_rec %}
       <div class="row">
-        <div class="col-md-3">{{ pub[0]['channel'][0] }}</div>
-        <div class="col-md-4">{{ pub[0]['url'] }}</div>
-        <div class="col-md-2">{{ pub[1] }}</div>
-        <div class="col-md-2">{{ pub[2] }}</div>
+        <div class="col-md-1"><p class="text-center">{{ loop.index }}</p></div>
+        <div class="col-md-2">
+          <p class="text-center">
+            <a href='https://www.medium.com/{{ chan[0][0][0] }}'>{{ chan[0][0][-1] }}</a>
+          </p>
+        </div>
+        <div class="col-md-4">
+          <p class="text-center">
+            {% for pub in chan[0] %}
+              <a href="{{ pub[2] }}">{{ pub[1]}}</a>
+              <br><br>
+            {% endfor %}
+          </p>
+        </div>
+        <div class="col-md-2">
+          <p class="text-center">
+            <br>
+            {% for tag in chan[1]%}
+              {{ tag }}
+              <br>
+            {% endfor %}
+          </p>
+        </div>
+        <div class="col-md-2">
+          <p class="text-center">
+            {{ chan[2] }}
+          </p>
+        </div>
       </div>
       {% endfor %}
-
+    </div>
    </div><!-- /.container -->
 
     <div class="container">
@@ -129,5 +186,6 @@
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
 <script src="static/js/bootstrap.min.js"></script>
+</div>
   </body>
 </html>

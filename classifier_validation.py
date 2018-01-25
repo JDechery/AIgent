@@ -15,7 +15,7 @@ import re
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from scipy.stats import entropy
 
-# %%
+# %% oob error over n_trees
 embedder = gensim_nlp.DocEmbedder()
 embedder.load_model()
 min_blogs = 15
@@ -120,6 +120,24 @@ plt.legend(['random', 'difference', 'classifier accuracy'], frameon=False)
 plt.title('Publisher predictions from\npublishers with over {:d} posts (n={:d})'.format(min_blogs, n_channel))
 plt.tight_layout()
 plt.savefig('/home/jdechery/code/insight/Mediumrare/crossval_topNaccuracy.png', dpi=300)
+plt.show()
+# %% confusion matrix
+kfold = 3
+cv = StratifiedKFold(n_splits=kfold)
+n_trees = 500
+clf = RandomForestClassifier(n_jobs=-1, n_estimators=n_trees, max_features='sqrt')
+conf = []
+for train_idx, test_idx in cv.split(X, y):
+    X_train, X_test = X[train_idx, :], X[test_idx, :]
+    y_train, y_test = y[train_idx], y[test_idx]
+    clf.fit(X_train, y_train)
+    y_hat = clf.predict(X_test)
+    cmat = confusion_matrix(y_test, y_hat)
+    _, n_test_labels = np.unique(y_test, return_counts=True)
+    cmat = cmat / np.reshape(np.asarray(n_test_labels), (n_channel, -1))
+    conf.append(cmat)
+# %%
+sns.heatmap(conf[0], vmin=0, vmax=1)
 plt.show()
 # %% plot error rate per category vs label diversity
 # no effect
