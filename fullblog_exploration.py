@@ -8,7 +8,7 @@ import matplotlib
 import seaborn as sns
 
 conn = db_tools.get_conn()
-tag_query = 'SELECT id, tags, claps from mediumblogfull ORDER BY id'
+tag_query = 'SELECT id, tags, claps from mediumcleanfull ORDER BY id'
 
 blogrows = conn.execute(tag_query).fetchall()
 remove_bad_chars = lambda word: re.sub('[{}"]', '', word)

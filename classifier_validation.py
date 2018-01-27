@@ -2,6 +2,7 @@ from sklearn.metrics import make_scorer, accuracy_score, confusion_matrix
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.utils.class_weight import compute_class_weight
 from Mediumrare import db_tools, gensim_nlp, predictor_model
 import pandas as pd
 import numpy as np
@@ -18,7 +19,7 @@ from scipy.stats import entropy
 # %% oob error over n_trees
 embedder = gensim_nlp.DocEmbedder()
 embedder.load_model()
-min_blogs = 15
+min_blogs = 25
 X, y, labelencoder, channeldf = predictor_model.reorg_for_training(embedder.model, min_blogs=min_blogs)
 n_docs = X.shape[0]
 word_cols = ['dim%d'%x for x in range(X.shape[1])]
@@ -27,47 +28,52 @@ n_channel = len(labelencoder.classes_)
 # n_docs = channeldf.shape[0]
 # X = channeldf[word_cols].as_matrix()
 # y = labelencoder.transform(channeldf['channel'])
+
 # %% oob_score over n_estimators
 # clf = RandomForestClassifier(warm_start=True, oob_score=True,
                               # n_jobs=-1, max_features='sqrt')
+classw = compute_class_weight('balanced', np.unique(y), y)
+# classw *= 1/classw.sum()
+# classw = np.bincount(y)/y.size
+n_trees = 500
 ensemble_clfs = [
-    ("RandomForestClassifier, max_features='sqrt'",
-        RandomForestClassifier(warm_start=True, oob_score=True,
-                               max_features="sqrt",
+    ("imbalanced",
+        RandomForestClassifier(oob_score=True,
+                               max_features=None, n_estimators=n_trees,
                                n_jobs=-1)),
-    ("RandomForestClassifier, max_features='log2'",
-        RandomForestClassifier(warm_start=True, max_features='log2',
-                               oob_score=True,
+    ("balanced",
+        RandomForestClassifier(max_features=None, n_estimators=n_trees,
+                               oob_score=True, class_weight=dict(zip(np.unique(y),classw)),
                                n_jobs=-1)),
-    ("RandomForestClassifier, max_features=None",
-        RandomForestClassifier(warm_start=True, max_features=None,
-                               oob_score=True,
-                               n_jobs=-1))
 ]
-n_trees = range(50, 751, 100)
+# n_trees = range(200, 501, 100)
+depth = [None, 2, 3, 4 ,5]
 error_rate = OrderedDict((label, []) for label, _ in ensemble_clfs)
-# error_rate = []
+# %% error_rate = []
 for label, clf in ensemble_clfs:
-    for trees in n_trees:
-        clf.set_params(n_estimators=trees)
+    for d in depth:
+        clf.set_params(n_estimators=n_trees)
+        clf.set_params(max_depth=d)
         clf.fit(X, y)
 
-        # Record the OOB error for each `n_estimators=i` setting.
         oob_error = 1 - clf.oob_score_
-        error_rate[label].append((trees, oob_error))
+        if d is None:
+            d = 0
+        error_rate[label].append((d, oob_error))
 # %% plot
 for label, clf_err in error_rate.items():
     xs, ys = zip(*clf_err)
-    plt.plot(xs, ys, label=label.split(',')[1])
+    plt.plot(xs, ys, label=label)
 
-plt.xlim(n_trees[0], n_trees[-1])
-plt.xlabel("n_estimators")
+# plt.xlim(n_trees[0], n_trees[-1])
+# plt.xlabel("n_estimators")
 plt.ylabel("OOB error rate")
 plt.legend(frameon=False, fontsize=13)
 plt.title('Forest hyperparameter errors')
 plt.tight_layout()
 # plt.savefig('/home/jdechery/code/insight/Mediumrare/crossval_forest_hyperparam.png', dpi=300)
 plt.show()
+
 # %% get accuracy of top N labels (not only top 1 label)
 def predicted_in_topN(clf, Xtest, ytest, N):
     y_hat = clf.predict_proba(X_test)
@@ -78,31 +84,42 @@ def predicted_in_topN(clf, Xtest, ytest, N):
     truepositive = np.any(np.equal(labels, np.repeat(ytest, N, axis=1)), axis=1)
     return truepositive
 
+classw = compute_class_weight('balanced', np.unique(y), y)
 kfold = 3
 topN = range(1,21)
 cv = StratifiedKFold(n_splits=kfold)
 n_trees = 500
 # clf = gridclf.best_estimator_
 # clf = KNeighborsClassifier(p=2, n_jobs=-1)
-clf = RandomForestClassifier(n_jobs=-1, n_estimators=n_trees, max_features='sqrt')
+clf = RandomForestClassifier(n_jobs=-1, n_estimators=n_trees,
+                             max_features=None)#, max_depth=3, class_weight='balanced')
 accuracy = np.zeros((kfold, len(topN)))
+accuracy_weighted = np.zeros((kfold, len(topN)))
 for splitid, (train_idx, test_idx) in enumerate(cv.split(X, y)):
     X_train, X_test = X[train_idx, :], X[test_idx, :]
     y_train, y_test = y[train_idx], y[test_idx]
     clf.fit(X_train, y_train)
     y_hat = clf.predict_proba(X_test)
+    y_hat_weighted = y_hat * classw
     argmax_labels = np.argsort(y_hat, axis=1)
+    argmax_wlabel = np.argsort(y_hat_weighted, axis=1)
+    ytest = np.reshape(y_test, (-1, 1))
     for N in topN:
-        ytest = np.reshape(y_test, (-1, 1))
         labels = np.reshape(argmax_labels[:,-N:], (-1, N))
         truepositive = np.any(np.equal(labels, np.repeat(ytest, N, axis=1)), axis=1)
         accuracy[splitid, N-1] = np.mean(truepositive)
+
+        labels = np.reshape(argmax_wlabel[:,-N:], (-1, N))
+        truepositive = np.any(np.equal(labels, np.repeat(ytest, N, axis=1)), axis=1)
+        accuracy_weighted[splitid, N-1] = np.mean(truepositive)
 # %% plot acc
 matplotlib.rcParams.update({'font.size': 18})
 fig, ax = plt.subplots(figsize=(8,6))
 plt.errorbar(x=topN, y=np.mean(accuracy,axis=0), yerr=np.std(accuracy,axis=0), linewidth=2.)
-
-psuccess = np.asarray(topN)/n_channel
+# plt.errorbar(x=topN, y=np.mean(accuracy_weighted,axis=0), yerr=np.std(accuracy_weighted,axis=0), color='g')
+# psuccess = np.asarray(topN)/n_channel
+# psuccess = np.cumsum(np.sort(classw)[:14:-1]) / np.sum(classw)
+psuccess = np.cumsum(np.sort(np.bincount(y))[::-1]/y.size)[:20]
 pdiff = np.mean(accuracy,axis=0)-psuccess
 bestN = np.argmax(pdiff)
 plt.plot([topN[bestN], topN[bestN]], [0, pdiff[bestN]], linestyle='--',
@@ -112,24 +129,27 @@ plt.scatter([topN[bestN]], [pdiff[bestN]], s=200, marker='*', c='r', label='_nol
 plt.plot(topN, psuccess, color='k', linewidth=2.)
 plt.plot(topN, pdiff, linestyle='--', linewidth=2, color=[.6, .6, .6])
 plt.xlabel('including top N choices')
-plt.ylabel('mean accuracy')
+plt.ylabel('accuracy')
 plt.ylim((0, 1))
-plt.xlim((1, topN[-1]))
+# plt.xlim((1, topN[-1]))
 plt.xticks(range(2,22,2))
-plt.legend(['random', 'difference', 'classifier accuracy'], frameon=False)
-plt.title('Publisher predictions from\npublishers with over {:d} posts (n={:d})'.format(min_blogs, n_channel))
+plt.legend(['random', 'difference', 'classifier'], frameon=False)
+# plt.title('Publisher predictions from\npublishers with over {:d} posts (n={:d})'.format(min_blogs, n_channel))
+plt.title('Classification accuracy')
 plt.tight_layout()
-plt.savefig('/home/jdechery/code/insight/Mediumrare/crossval_topNaccuracy.png', dpi=300)
-plt.show()
+plt.savefig('/home/jdechery/code/insight/Mediumrare/crossval_topNaccuracy.png', dpi=600)
+# plt.show()
 # %% confusion matrix
+from imblearn.over_sampling import SMOTE
 kfold = 3
 cv = StratifiedKFold(n_splits=kfold)
 n_trees = 500
-clf = RandomForestClassifier(n_jobs=-1, n_estimators=n_trees, max_features='sqrt')
+clf = RandomForestClassifier(n_jobs=-1, n_estimators=n_trees, max_features=None)
 conf = []
 for train_idx, test_idx in cv.split(X, y):
     X_train, X_test = X[train_idx, :], X[test_idx, :]
     y_train, y_test = y[train_idx], y[test_idx]
+    Xover, yover = SMOTE(n_jobs=-1, kind='borderline2').fit_sample(X_train,y_train)
     clf.fit(X_train, y_train)
     y_hat = clf.predict(X_test)
     cmat = confusion_matrix(y_test, y_hat)
@@ -137,8 +157,22 @@ for train_idx, test_idx in cv.split(X, y):
     cmat = cmat / np.reshape(np.asarray(n_test_labels), (n_channel, -1))
     conf.append(cmat)
 # %%
-sns.heatmap(conf[0], vmin=0, vmax=1)
+muconf = np.dstack(conf).mean(axis=2)
+
+# mu_attraction = muconf.copy()
+# np.fill_diagonal(mu_attraction, 0)
+# mu_attraction = mu_attraction.sum(axis=0)
+mu_attraction = muconf.sum(axis=0) - np.diag(muconf)
+mu_acc = np.diag(muconf)
+label_ids = labelencoder.classes_
+nlabel = channeldf['channel'].value_counts()
+
+labeldf = pd.DataFrame(index=label_ids, columns=['acc','att'], data=list(zip(mu_acc, mu_attraction)))
+labeldf = pd.concat([labeldf, nlabel], axis=1)
+# %%
+sns.heatmap(muconf, vmin=0, vmax=.5)
 plt.show()
+# labeldf.plot.scatter(x='channel', y='acc')
 # %% plot error rate per category vs label diversity
 # no effect
 kfold = 3

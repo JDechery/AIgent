@@ -12,11 +12,11 @@ import matplotlib
 import pickle
 import pprint
 import re
-
+import pudb
 def main(clf_fname='/home/jdechery/forest_classifier.pkl', tosave=True):
     embedder = gensim_nlp.DocEmbedder()
     embedder.load_model()
-    X, y, labelencoder, channeldf = reorg_for_training(embedder.model, min_blogs=15)
+    X, y, labelencoder, channeldf = reorg_for_training(embedder.model, min_blogs=25)
 
     clf = fit_forest_classifier(X, y)
     # %% save
@@ -44,7 +44,7 @@ def data_base2frame(doc2vec_model, min_blogs):
     remove_bad_chars = lambda word: re.sub('[{}"]', '', word)
     blogdf['tags'] = blogdf['tags'].map(remove_bad_chars)
     # blogdf['tags'] = blogdf['tags'].map(lambda x: x.replace(',', ', '))
-
+    # pudb.set_trace()
     doc_vectors = doc2vec_model.docvecs
     # tags = list(doc_vectors.doctags.keys())
     # tag2id = list(map(lambda x: int(x.split('_')[1])+1, tags))
