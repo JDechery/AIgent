@@ -2,7 +2,7 @@ h4 {
   margin-top: 25px;
 }
 .row {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 .row .row {
   margin-top: 10px;
@@ -22,20 +22,6 @@ hr {
   margin-bottom: 40px;
 }
 
-div#content {
-    display: none;
-    }
- 
-div#loading {
-    top: 200 px;
-    margin: auto;
-    position: absolute;
-    z-index: 1000;
-    width: 600px;
-    height: 600px;
-    background: loading.gif no-repeat;
-    cursor: wait;
-    }
 
 body {
     margin: 0;
@@ -101,3 +87,50 @@ p {
 }
 
 .gobutton:hover {background-color: #555;}
+
+body {
+  margin: 2em;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+div.pub {
+  /* style this span element so we can display nicely, this stlying is not neccessary */
+  margin: 10px 0;
+  display: block;
+  float: left;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  /* hide the inputs */
+  opacity: 0;
+}
+
+
+/* style your lables/button */
+input[type="radio"] + label {
+  cursor: pointer;
+  padding: 4px 40px;
+  border: 2px solid #ccc;
+  background: #efefef;
+  color: #333;
+  border-radius: 3px;
+  display: inline-block;
+  width: 100%;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0);
+  text-align: center;
+}
+
+input[type="radio"]:checked + label {
+  background: #777;
+  border: 2px solid #444;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+  color: white;
+}
+
+
+.column {
+  padding: 25px;
+  float: left;
+}
+																																																	

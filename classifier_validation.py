@@ -30,36 +30,37 @@ n_channel = len(labelencoder.classes_)
 # y = labelencoder.transform(channeldf['channel'])
 
 # %% oob_score over n_estimators
+clf, *_ = predictor_model.load_classifier()
 # clf = RandomForestClassifier(warm_start=True, oob_score=True,
                               # n_jobs=-1, max_features='sqrt')
-classw = compute_class_weight('balanced', np.unique(y), y)
+# classw = compute_class_weight('balanced', np.unique(y), y)
 # classw *= 1/classw.sum()
 # classw = np.bincount(y)/y.size
-n_trees = 500
-ensemble_clfs = [
-    ("imbalanced",
-        RandomForestClassifier(oob_score=True,
-                               max_features=None, n_estimators=n_trees,
-                               n_jobs=-1)),
-    ("balanced",
-        RandomForestClassifier(max_features=None, n_estimators=n_trees,
-                               oob_score=True, class_weight=dict(zip(np.unique(y),classw)),
-                               n_jobs=-1)),
-]
+# n_trees = 500
+ensemble_clfs = [ ("final", clf) ]
+    # ("imbalanced",
+    #     RandomForestClassifier(oob_score=True,
+    #                            max_features=None, n_estimators=n_trees,
+    #                            n_jobs=-1)),
+    # ("balanced",
+    #     RandomForestClassifier(max_features=None, n_estimators=n_trees,
+    #                            oob_score=True, class_weight=dict(zip(np.unique(y),classw)),
+    #                            n_jobs=-1)),
+# ]
 # n_trees = range(200, 501, 100)
-depth = [None, 2, 3, 4 ,5]
+# depth = [None, 2, 3, 4 ,5]
 error_rate = OrderedDict((label, []) for label, _ in ensemble_clfs)
 # %% error_rate = []
 for label, clf in ensemble_clfs:
-    for d in depth:
-        clf.set_params(n_estimators=n_trees)
-        clf.set_params(max_depth=d)
-        clf.fit(X, y)
-
-        oob_error = 1 - clf.oob_score_
-        if d is None:
-            d = 0
-        error_rate[label].append((d, oob_error))
+    clf.fit(X, y)
+    oob_error = 1 - clf.oob_score_
+    error_rate[label].append(oob_error)
+    # for d in depth:
+    #     clf.set_params(n_estimators=n_trees)
+    #     clf.set_params(max_depth=d)
+    #
+    #     if d is None:
+    #         d = 0
 # %% plot
 for label, clf_err in error_rate.items():
     xs, ys = zip(*clf_err)
@@ -84,15 +85,15 @@ def predicted_in_topN(clf, Xtest, ytest, N):
     truepositive = np.any(np.equal(labels, np.repeat(ytest, N, axis=1)), axis=1)
     return truepositive
 
-classw = compute_class_weight('balanced', np.unique(y), y)
-kfold = 3
+# classw = compute_class_weight('balanced', np.unique(y), y)
+kfold = 5
 topN = range(1,21)
 cv = StratifiedKFold(n_splits=kfold)
-n_trees = 500
+# n_trees = 500
 # clf = gridclf.best_estimator_
 # clf = KNeighborsClassifier(p=2, n_jobs=-1)
-clf = RandomForestClassifier(n_jobs=-1, n_estimators=n_trees,
-                             max_features=None)#, max_depth=3, class_weight='balanced')
+# clf = RandomForestClassifier(n_jobs=-1, n_estimators=n_trees,
+                             # max_features=None)#, max_depth=3, class_weight='balanced')
 accuracy = np.zeros((kfold, len(topN)))
 accuracy_weighted = np.zeros((kfold, len(topN)))
 for splitid, (train_idx, test_idx) in enumerate(cv.split(X, y)):
@@ -109,9 +110,9 @@ for splitid, (train_idx, test_idx) in enumerate(cv.split(X, y)):
         truepositive = np.any(np.equal(labels, np.repeat(ytest, N, axis=1)), axis=1)
         accuracy[splitid, N-1] = np.mean(truepositive)
 
-        labels = np.reshape(argmax_wlabel[:,-N:], (-1, N))
-        truepositive = np.any(np.equal(labels, np.repeat(ytest, N, axis=1)), axis=1)
-        accuracy_weighted[splitid, N-1] = np.mean(truepositive)
+        # labels = np.reshape(argmax_wlabel[:,-N:], (-1, N))
+        # truepositive = np.any(np.equal(labels, np.repeat(ytest, N, axis=1)), axis=1)
+        # accuracy_weighted[splitid, N-1] = np.mean(truepositive)
 # %% plot acc
 matplotlib.rcParams.update({'font.size': 18})
 fig, ax = plt.subplots(figsize=(8,6))

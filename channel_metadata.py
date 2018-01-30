@@ -5,7 +5,7 @@ import re
 from itertools import chain
 embedder = gensim_nlp.DocEmbedder()
 embedder.load_model()
-_, _, labelencoder, channeldf = predictor_model.reorg_for_training(embedder.model, min_blogs=15)
+_, _, labelencoder, channeldf = predictor_model.reorg_for_training(embedder.model, min_blogs=25)
 bad_idx = channeldf['pub_date'].map(lambda x: len(x))<10
 channeldf = channeldf.drop(channeldf.index[bad_idx])
 channeldf['pub_date'] = pd.to_datetime(channeldf['pub_date'], format='%b %d, %Y')
@@ -33,3 +33,16 @@ def most_common_tags(channeldf, channel, ntags=3):
     tags = list(chain(*channeldf.loc[channel_idx, 'tags'].map(lambda x: x.split(',')).values))
     common_tags = pd.Series(tags).value_counts()[:ntags]
     return common_tags.index.tolist()
+# %%
+def most_similar_doc(channeldf, channel, newvec, d2vmodel=embedder.model):
+    channel_idx = np.where(channeldf.channel==channel)[0]
+    ndocs = len(d2vmodel.docvecs)
+    channel_sim = d2vmodel.docvecs.most_similar([newvec], topn=ndocs)
+    docid = [x[0] for x in channel_sim]
+    most_similar_idx = []
+    for chanid in docid:
+        if chanid in channel_idx:
+            most_similar_idx = chanid
+            break
+    similar_doc = channeldf.iloc[most_similar_idx,:].loc[['title','url']].values
+    return similar_doc

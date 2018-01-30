@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="../static/insightDS.ico" type="image/x-icon" />
+
+  <title>AIgent</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="../static/css/bootstrap-grid.min.css" rel="stylesheet">
+
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <link href="../static/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../static/grid.css" rel="stylesheet">
+
+  <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+  <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+  <script src="../../assets/js/ie-emulation-modes-warning.js"></script>
+
+</head>
+
+<body>
+  <ul>
+    <li><p/><img src="../static/aigent.png" width="100%" height="20%"></li>
+    <li><a class="active" href="/input"><p class="navtext">Home</p></a></li>
+    <li><a href="/about"><p class="navtext">About</p></a></li>
+    <li><a href="/slides"><p class="navtext">Slides</p></a></li>
+  </ul>
+  <div style="margin-left:25%;">
+
+    <br><br>
+    <div style="padding:0% 10%;"><p><h1>Your recommended publishers</h1></p></div>
+
+    <div class="row" style="padding:1px 20px;display:table;">
+      <div class="column left" style="width:25%;">
+        {% for chan in channel_rec %}
+        <div class="pub">
+          {% if loop.index==1 %}
+            <input id="Radio{{ loop.index }}" name="Radios" type="radio" value="Option{{ loop.index }}" checked="checked">
+          {% else %}
+            <input id="Radio{{ loop.index }}" name="Radios" type="radio" value="Option{{ loop.index }}">
+          {% endif %}
+          <label for="Radio{{ loop.index }}">
+            <!-- <a href='https://www.medium.com/{{ chan[0][0][0] }}'>{{ chan[0][0][-1] }}</a> -->
+            {{ chan[0][0][-1] }}
+          </label>
+        </div>
+        {% endfor %}
+        <span style="padding:50px;">
+          <a href="/input"><h3>Enter a new blog post</h3></a>
+        </span>
+      </div>
+      <!-- content for selected publisher-->
+      <div class="column right" style="width:75%">
+        {% for chan in channel_rec %}
+        <div class="row Radio{{ loop.index }}" name="pubdata">
+          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Rank</strong></p></div>
+          <div class="col-md-6"><p class="text-center">{{ loop.index }}</p></div>
+        </div>
+
+        <div class="row Radio{{ loop.index }}" name="pubdata">
+          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Publisher</strong></p></div>
+          <div class="col-md-6">
+            <p class="text-center">
+              <a href='https://www.medium.com/{{ chan[0][0][0] }}'>{{ chan[0][0][-1] }}</a>
+            </p>
+          </div>
+        </div>
+
+        <div class="row Radio{{ loop.index }}" name="pubdata">
+          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Recent Posts</strong></p></div>
+          <div class="col-md-6">
+            <p class="text-center">
+              {% for pub in chan[0] %}
+              <a href="{{ pub[2] }}">{{ pub[1]}}</a>
+              <br><br>
+              {% endfor %}
+            </p>
+          </div>
+        </div>
+
+        <div class="row Radio{{ loop.index }}" name="pubdata">
+          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Common Tags</strong></p></div>
+          <div class="col-md-6">
+            <p class="text-center">
+              <br>
+              {% for tag in chan[1]%}
+              {{ tag }}
+              <br>
+              {% endfor %}
+            </p>
+          </div>
+        </div>
+        <div class="row Radio{{ loop.index }}" name="pubdata">
+          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Average Claps</strong></p></div>
+          <div class="col-md-6">
+            <p class="text-center">
+              {{ chan[2] }}
+            </p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+      <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+      <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+      <script src="../static/js/bootstrap.min.js"></script>
+      <script src="../static/js/displaychannel.js"></script>
+    </body>
+    </html>

@@ -18,5 +18,6 @@ def ModelIt(blogtext, embedder_model, clf, topN=5):
                          channel_metadata.most_common_tags,
                          channel_metadata.mean_channel_claps)
     top_channel_data = [[data_fun(channeldf, chan) for data_fun in channel_data_funs] for chan in top_channels]
+    # top_channel_data.append([channel_metadata.most_similar_doc(channeldf, chan, blog_vec) for chan in top_channels])
     # pudb.set_trace()
     return top_channel_data

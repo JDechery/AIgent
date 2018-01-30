@@ -73,4 +73,4 @@ def cesareans_output():
   blogtext = request.args.get('blogtext')
   channel_rec = ModelIt(blogtext, embedder.model, clf)
   # print(channel_rec)
-  return render_template("output.html", channel_rec=channel_rec)
+  return render_template("output_interactive.html", channel_rec=channel_rec)
