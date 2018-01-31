@@ -4,7 +4,7 @@ import psycopg2
 import gensim
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
-
+import pandas as pd
 # %%
 def get_conn():
     username = 'postgres'
@@ -17,6 +17,12 @@ def get_conn():
     conn = engine.connect()
     return conn
 
+# %% get channel tag df
+def channel_tag_df(conn=get_conn()):
+    query = 'SELECT * FROM channeltags'
+    df = pd.read_sql(query, conn)
+    df.set_index('id', inplace=True)
+    return df
 # %% one and done
 def create_clean_table(conn=get_conn()):
     colnames = ('id', 'blog_url', 'rawtext', 'img_url', 'img_path', 'title', 'claps')
