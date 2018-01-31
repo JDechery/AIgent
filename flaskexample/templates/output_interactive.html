@@ -40,10 +40,11 @@
 
     <div class="row" style="padding:1px 20px;display:table;">
       <div class="column left" style="width:25%;">
+        <h3 style="text-align:center;"> Select a publisher <br>for more info</h3>
         {% for chan in channel_rec %}
         <div class="pub">
           {% if loop.index==1 %}
-            <input id="Radio{{ loop.index }}" name="Radios" type="radio" value="Option{{ loop.index }}" checked="checked">
+            <input id="Radio{{ loop.index }}" name="Radios" type="radio" value="Option{{ loop.index }}">
           {% else %}
             <input id="Radio{{ loop.index }}" name="Radios" type="radio" value="Option{{ loop.index }}">
           {% endif %}
