@@ -35,11 +35,10 @@
   </ul>
   <div style="margin-left:25%;">
 
-    <br><br>
     <div style="padding:0% 10%;"><p><h1>Your recommended publishers</h1></p></div>
 
     <div class="row" style="padding:1px 20px;display:table;">
-      <div class="column left" style="width:25%;">
+      <div class="column left" style="width:25%;border-right: 3px solid slateblue;">
         <h3 style="text-align:center;"> Select a publisher <br>for more info</h3>
         {% for chan in channel_rec %}
         <div class="pub">
@@ -61,20 +60,22 @@
       <!-- content for selected publisher-->
       <div class="column right" style="width:75%">
         {% for chan in channel_rec %}
+
+        <div class="row Radio{{ loop.index }}" name="pubdata">
+          <!-- <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Match</strong></p></div> -->
+          <!-- <div class="col-md-6"><p class="text-center">{{ chan[0] }} %</p></div> -->
+          <p class="text-center" style="font-size:40px"><strong>&nbsp;Match</strong></p>
+          <p class="text-center" style="font-size:40px;color:blue;"><strong>&nbsp;&emsp;{{ chan[0] }} %</strong></p>
+        </div>
+
         <div class="row Radio{{ loop.index }}" name="pubdata">
           <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Publisher Info</strong></p></div>
           <div class="col-md-6">
             <p class="text-center">
-              <a href='{{ chan[1][1] }}'><h4>{{ chan[1][0] }}</h4></a>
-              
+              <a href='{{ chan[1][1] }}'>{{ chan[1][0] }}</a><br>
               <i>{{ chan[1][2] }}</i>
             </p>
           </div>
-        </div>
-
-        <div class="row Radio{{ loop.index }}" name="pubdata">
-          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Match</strong></p></div>
-          <div class="col-md-6"><p class="text-center">{{ chan[0] }} %</p></div>
         </div>
 
         <div class="row Radio{{ loop.index }}" name="pubdata">

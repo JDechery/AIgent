@@ -64,13 +64,14 @@ def index():
 def slides():
     return render_template("slides.html", title="slides")
 
-@app.route('/input')
+@app.route('/input', methods=['GET','POST'])
 def url_input():
     return render_template("input.html", blogtext='')
 
-@app.route('/output')
+@app.route('/output', methods=['GET'])
 def cesareans_output():
   blogtext = request.args.get('blogtext')
+  print(blogtext)
   # channel_rec = ModelIt(blogtext, embedder.model, clf)
   channel_rec = ModelBetter(blogtext, embedder.model, clf)
   # print(channel_rec)
