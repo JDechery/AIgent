@@ -8,7 +8,7 @@ import pandas as pd
 # %%
 def get_conn():
     username = 'postgres'
-    with open('/home/jdechery/.postgrespw.txt','r') as f:
+    with open('../.postgrespw.txt','r') as f:
         password = f.readline()[:-1]
     host     = 'localhost'
     port     = '5432'

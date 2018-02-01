@@ -21,11 +21,11 @@ import psycopg2
 # conn = None
 # conn = psycopg2.connect(database = dbname, user = user, host=host, password=password)
 conn = db_tools.get_conn()
-embed_fname = '/home/jdechery/doc2vec.model'
+embed_fname = '../doc2vec.model'
 embedder = gensim_nlp.DocEmbedder()
 embedder.load_model(fname=embed_fname)
 
-clf_fname = '/home/jdechery/forest_classifier.pkl'
+clf_fname = '../forest_classifier.pkl'
 clf,_,_ = predictor_model.load_classifier()
 
 # @app.route('/db')

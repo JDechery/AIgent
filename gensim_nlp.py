@@ -79,7 +79,7 @@ class DocEmbedder(object):
             'iter': 20,
             'sample': 0.
             }
-        self.default_fname = '/home/jdechery/doc2vec.model'
+        self.default_fname = '../doc2vec.model'
 
     def train_model(self, **modelargs):
         if self.model is None:
@@ -106,7 +106,7 @@ class DocEmbedder(object):
 # %%
 
 # %%
-def main(fname='/home/jdechery/doc2vec.model'):
+def main(fname='../doc2vec.model'):
     cores = multiprocessing.cpu_count()
     conn = db_tools.get_conn()
     query = 'SELECT cleantext from mediumcleanfull ORDER BY id'

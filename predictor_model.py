@@ -13,7 +13,7 @@ import pickle
 import pprint
 import re
 import pudb
-def main(clf_fname='/home/jdechery/forest_classifier.pkl', tosave=True):
+def main(clf_fname='../forest_classifier.pkl', tosave=True):
     embedder = gensim_nlp.DocEmbedder()
     embedder.load_model()
     X, y, labelencoder, channeldf = reorg_for_training(embedder.model, min_blogs=25)
@@ -156,9 +156,9 @@ def figs_and_validation():
     plt.xlabel('predicted channel')
     plt.ylabel('actual channel')
     plt.show()
-    fig.savefig('/home/jdechery/code/insight/confusionmat.png',set_resolution=300)
+    fig.savefig('../confusionmat.png',set_resolution=300)
 
-def load_classifier(fname='/home/jdechery/forest_classifier.pkl'):
+def load_classifier(fname='../forest_classifier.pkl'):
     with open(fname, 'rb') as f:
         clf, labelencoder, channeldf = pickle.load(f)
     return clf, labelencoder, channeldf
