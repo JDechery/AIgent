@@ -7,7 +7,7 @@ import gensim
 import string
 from Mediumrare import db_tools
 from itertools import chain
-import pudb
+# import pudb
 import multiprocessing
 
 # assert gensim.models.doc2vec.FAST_VERSION > -1 # "This will be painfully slow otherwise"

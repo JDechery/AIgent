@@ -2,7 +2,7 @@ import pickle
 from gensim import models
 from Mediumrare import gensim_nlp, db_tools, predictor_model, channel_metadata
 import numpy as np
-import pudb
+# import pudb
 
 def ModelIt(blogtext, embedder_model, clf, topN=5):
     _,_,labelencoder, channeldf = predictor_model.reorg_for_training(embedder_model, min_blogs=25)

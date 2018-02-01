@@ -6,13 +6,13 @@ from sklearn.metrics import make_scorer, accuracy_score, confusion_matrix, class
 from Mediumrare import db_tools, gensim_nlp
 import pandas as pd
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import matplotlib
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+# import matplotlib
 import pickle
-import pprint
+# import pprint
 import re
-import pudb
+# import pudb
 def main(clf_fname='../forest_classifier.pkl', tosave=True):
     embedder = gensim_nlp.DocEmbedder()
     embedder.load_model()
