@@ -4,7 +4,7 @@ from flaskexample import app
 from Mediumrare import db_tools, gensim_nlp, predictor_model
 # from sqlalchemy import create_engine
 # from sqlalchemy_utils import database_exists, create_database
-from flaskexample.a_Model import ModelIt
+from flaskexample.a_Model import ModelBetter
 import pandas as pd
 import psycopg2
 
@@ -71,6 +71,7 @@ def url_input():
 @app.route('/output')
 def cesareans_output():
   blogtext = request.args.get('blogtext')
-  channel_rec = ModelIt(blogtext, embedder.model, clf)
+  # channel_rec = ModelIt(blogtext, embedder.model, clf)
+  channel_rec = ModelBetter(blogtext, embedder.model, clf)
   # print(channel_rec)
   return render_template("output_interactive.html", channel_rec=channel_rec)

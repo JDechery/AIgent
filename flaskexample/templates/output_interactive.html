@@ -50,7 +50,7 @@
           {% endif %}
           <label for="Radio{{ loop.index }}">
             <!-- <a href='https://www.medium.com/{{ chan[0][0][0] }}'>{{ chan[0][0][-1] }}</a> -->
-            {{ chan[0][0][-1] }}
+            {{ chan[1][0] }}
           </label>
         </div>
         {% endfor %}
@@ -62,15 +62,38 @@
       <div class="column right" style="width:75%">
         {% for chan in channel_rec %}
         <div class="row Radio{{ loop.index }}" name="pubdata">
-          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Rank</strong></p></div>
-          <div class="col-md-6"><p class="text-center">{{ loop.index }}</p></div>
+          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Publisher Info</strong></p></div>
+          <div class="col-md-6">
+            <p class="text-center">
+              <a href='{{ chan[1][1] }}'><h4>{{ chan[1][0] }}</h4></a>
+              
+              <i>{{ chan[1][2] }}</i>
+            </p>
+          </div>
         </div>
 
         <div class="row Radio{{ loop.index }}" name="pubdata">
-          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Publisher</strong></p></div>
+          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Match</strong></p></div>
+          <div class="col-md-6"><p class="text-center">{{ chan[0] }} %</p></div>
+        </div>
+
+        <div class="row Radio{{ loop.index }}" name="pubdata">
+          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Common Tags</strong></p></div>
           <div class="col-md-6">
             <p class="text-center">
-              <a href='https://www.medium.com/{{ chan[0][0][0] }}'>{{ chan[0][0][-1] }}</a>
+              {% for tag in chan[2]%}
+              {{ tag }},
+              <br>
+              {% endfor %}
+            </p>
+          </div>
+        </div>
+
+        <div class="row Radio{{ loop.index }}" name="pubdata">
+          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Most Relevant Article</strong></p></div>
+          <div class="col-md-6">
+            <p class="text-center">
+              <a href="{{ chan[3][1] }}">{{ chan[3][0] }}</a>
             </p>
           </div>
         </div>
@@ -79,34 +102,22 @@
           <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Recent Posts</strong></p></div>
           <div class="col-md-6">
             <p class="text-center">
-              {% for pub in chan[0] %}
-              <a href="{{ pub[2] }}">{{ pub[1]}}</a>
-              <br><br>
+              {% for pub in chan[4] %}
+                <a href="{{ pub[1] }}">{{ pub[0]}}</a>
+                <br><br>
               {% endfor %}
             </p>
           </div>
         </div>
 
-        <div class="row Radio{{ loop.index }}" name="pubdata">
-          <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Common Tags</strong></p></div>
-          <div class="col-md-6">
-            <p class="text-center">
-              <br>
-              {% for tag in chan[1]%}
-              {{ tag }}
-              <br>
-              {% endfor %}
-            </p>
-          </div>
-        </div>
-        <div class="row Radio{{ loop.index }}" name="pubdata">
+        <!-- <div class="row Radio{{ loop.index }}" name="pubdata">
           <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Average Claps</strong></p></div>
           <div class="col-md-6">
             <p class="text-center">
               {{ chan[2] }}
             </p>
           </div>
-        </div>
+        </div> -->
         {% endfor %}
       </div>
 
