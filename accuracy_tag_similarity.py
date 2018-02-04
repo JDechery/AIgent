@@ -58,7 +58,7 @@ from sklearn.metrics.pairwise import manhattan_distances, euclidean_distances, c
 tagdist = manhattan_distances(channel_tagvec)
 # tagdist = cosine_distances(channel_tagvec)
 
-matplotlib.rcParams.update({'font.size': 18})
+matplotlib.rcParams.update({'font.size': 24})
 # %%
 # fig, ax = plt.subplots()
 # plt.scatter(tagdist.flatten(),mu_conf.flatten(),4)
@@ -85,9 +85,12 @@ plt.show()
 yy = mu_acc
 xx = tagdf['channel'].value_counts()
 r = np.corrcoef(xx,yy)
-fig, ax = plt.subplots(figsize=(10,6))
+fig, ax = plt.subplots(figsize=(12,8.5))
 plt.scatter(xx,yy, 100)
+m, b = np.polyfit(xx, yy, 1)
+plt.plot(xx, m*xx + b, '-',color='k',linewidth=2)
 plt.xlabel('n articles')
 plt.ylabel('mean accuracy')
-plt.title('r='+str(r[1,0]))
+# plt.title('r='+str(r[1,0]))
+plt.tight_layout()
 plt.show()

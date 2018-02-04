@@ -42,9 +42,9 @@
         <h3 style="text-align:center;"> Select a publisher <br>for more info</h3>
         {% for chan in channel_rec %}
 
-        <div class="pub">
+        <div class="pub" style="width:100%;">
           {% if loop.index==1 %}
-            <input id="Radio{{ loop.index }}" name="Radios" type="radio" value="Option{{ loop.index }}">
+            <input id="Radio{{ loop.index }}" name="Radios" type="radio" value="Option{{ loop.index }}" checked="checked">
           {% else %}
             <input id="Radio{{ loop.index }}" name="Radios" type="radio" value="Option{{ loop.index }}">
           {% endif %}
@@ -65,8 +65,8 @@
         <div class="row Radio{{ loop.index }}" name="pubdata">
           <!-- <div class="col-md-3"><p class="text-center" style="font-size:20px"><strong>Match</strong></p></div> -->
           <!-- <div class="col-md-6"><p class="text-center">{{ chan[0] }} %</p></div> -->
-          <p class="text-center" style="font-size:40px"><strong>&nbsp;Match</strong></p>
-          <p class="text-center" style="font-size:40px;color:blue;"><strong>&nbsp;&emsp;{{ chan[0] }} %</strong></p>
+          <p class="text-center" style="font-size:40px"><strong>&nbsp;Rank</strong></p>
+          <p class="text-center" style="font-size:40px;color:blue;"><strong>&nbsp;&emsp;{{ loop.index }}</strong></p>
         </div>
 
         <div class="row Radio{{ loop.index }}" name="pubdata">
